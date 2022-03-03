@@ -1,2 +1,3 @@
 # hello-world
-My first repository
+我的第一个仓库
+我努力学习软件技术，要掌握工具，成为大神中的王者----工具人
