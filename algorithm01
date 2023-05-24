@@ -1,0 +1,238 @@
+// myAlgorithm.cpp : 定义控制台应用程序的入口点。
+
+#define _CRT_SECURE_NO_WARNINGS
+
+#include "stdafx.h"
+
+/*
+1.for_each:算法打印
+2.transform:搬运1：把容器1数据放入到容器2，可以修改
+3.transform:搬运2：把两个容器数据，处理后放入到容器3
+
+查找
+4.find:搭配类使用，方便
+5.find_if:搭配结构体和适配，不方便
+6.adjacent_find:查找相邻重复的元素
+
+适配:需要先继承
+
+*/
+#include<algorithm>
+#include<functional>
+
+#include<string>
+#include<iostream>
+#include<vector>
+//#include<map>
+using namespace std;
+
+//vector<int> Vol;
+//map<int, string> Map01;
+
+//struct myPrint
+//{
+//public:
+//	myPrint()
+//	{
+//		a = 0;
+//	}
+//	void operator()(const int &val)
+//	{
+//		cout << val << " ";
+//		a++;
+//	}
+//public:
+//	int a;
+//};
+//
+//
+//struct myAdd
+//{
+//public:
+//	
+//	int operator()(const int &val)
+//	{
+//		return val + 100;
+//	}
+//};
+
+
+//
+//void test01()
+//{
+//	vector<int> Vol02;
+//	
+//	Vol02.push_back(10);
+//	Vol02.push_back(20);
+//	Vol02.push_back(30);
+//	Vol02.push_back(40);
+//
+//	myPrint m1=for_each(Vol02.begin(), Vol02.end(), myPrint());
+//
+//}
+//
+//void test02()
+//{
+//	vector<int> Vol02;
+//
+//	Vol02.push_back(10);
+//	Vol02.push_back(20);
+//	Vol02.push_back(30);
+//	Vol02.push_back(40);
+//
+//	vector<int> Vol01;
+//	Vol01.resize(Vol02.size());
+//
+//	transform(Vol02.begin() + 1, Vol02.end() - 1, Vol01.begin(), myAdd());
+//	for_each(Vol01.begin(), Vol01.end(), [](int val)->void {cout << val << " "; });
+//
+//}
+#if FIND
+struct myAdd2
+{
+	int operator()(int v1, int v2)
+	{
+		return v1 + v2;
+	}
+};
+
+void test03()
+{
+	vector<int> Vol01;
+	Vol01.push_back(10);
+	Vol01.push_back(20);
+	Vol01.push_back(30);
+	Vol01.push_back(40);
+	Vol01.push_back(50);
+
+	vector<int> Vol02;
+	Vol02.push_back(100);
+	Vol02.push_back(200);
+	Vol02.push_back(300);
+	Vol02.push_back(400);
+	Vol02.push_back(500);
+	
+	vector<int> Vol03;
+	int a;
+
+	if (Vol01.size() > Vol02.size())
+	{
+		a=Vol01.size();
+	}
+	else
+	{
+		a = Vol02.size();
+	}
+	Vol03.resize(a);
+	//a = Vol03.size();
+
+	transform(Vol01.begin(), Vol01.end(), Vol02.begin(), Vol03.begin(), myAdd2());
+	for_each(Vol03.begin(), Vol03.end(), [](int val)->void {cout << val << " "; });
+
+}
+
+bool myPrint(int s)
+{
+	return s > 30;
+}
+
+void test04()
+{
+	vector<int> Vol01;
+	Vol01.push_back(10);
+	Vol01.push_back(20);
+	Vol01.push_back(30);
+	Vol01.push_back(40);
+	Vol01.push_back(50);
+
+	vector<int >::iterator it=find(Vol01.begin(), Vol01.end(),20);
+	if(it== Vol01.end())
+	{
+		cout << "查找失败" << endl;
+	}
+	else
+	{
+		cout << "查找成功：" <<*it<< endl;
+	}
+
+	vector<int >::iterator it2 = find_if(Vol01.begin(), Vol01.end(), myPrint);
+	if (it2 == Vol01.end())
+	{
+		cout << "查找失败" << endl;
+	}
+	else
+	{
+		cout << "查找成功：" << *it2 << endl;
+	}
+}
+#endif
+
+class Maker
+{
+public:
+	Maker(int age,string name)
+	{
+		this->age = age;
+		this->name = name;
+	}
+
+	bool operator==(const Maker&m)
+	{
+		return m.age == this->age && this->name == m.name;
+	}
+
+public:
+	int age;
+	string name;
+};
+
+
+struct  MyFind
+{
+	bool operator()(Maker m)
+	{
+		return m.age==40;
+	}
+};
+
+void test05()
+{
+	vector<Maker> Vol01;
+	Vol01.push_back(Maker(10,"aaa"));
+	Vol01.push_back(Maker(20, "bbb"));
+	Vol01.push_back(Maker(30, "xxx"));
+	Vol01.push_back(Maker(40, "ccc"));
+	Vol01.push_back(Maker(50, "ddd"));
+
+	
+	vector<Maker >::iterator it2 = find(Vol01.begin(), Vol01.end(), Maker(30, "xxx"));
+	if (it2 == Vol01.end())
+	{
+		cout << "查找失败" << endl;
+	}
+	else
+	{
+		cout << "查找成功：" << it2->age<<" " << it2->name << endl;
+	}
+
+	//find_if 不好用
+	it2 = find_if(Vol01.begin(), Vol01.end(), MyFind());
+	if (it2 == Vol01.end())
+	{
+		cout << "查找失败" << endl;
+	}
+	else
+	{
+		cout << "查找成功 find_if：" << it2->age << " " << it2->name << endl;
+	}
+}
+
+
+
+int main()
+{
+	test05();
+	system("pause");
+    return 0;
+}
+
