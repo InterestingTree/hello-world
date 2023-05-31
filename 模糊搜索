@@ -1,8 +1,129 @@
+/*
 想要拷贝元素：for(auto x:range)
 想要修改元素: for(auto &&x:range)
 想要只读元素：for(const auto& x:range)
-
 vector<string> corpus = { "hello","world", "foo", "bar", "fizz", "buzz" };
 
 fuzzy_search(corpus, query, threshold);  //const vector<string>& corpus
 for (const auto& word : corpus)
+*/
+#include "stdafx.h"
+#if 0
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <vector>
+
+using namespace std;
+
+int edit_distance(const string& s1, const string& s2) {
+	int n = s1.length(), m = s2.length();
+	vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+	for (int i = 1; i <= n; i++) {
+		dp[i][0] = i;
+	}
+	for (int j = 1; j <= m; j++) {
+		dp[0][j] = j;
+	}
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= m; j++) {
+			if (s1[i - 1] == s2[j - 1]) {
+				dp[i][j] = dp[i - 1][j - 1];
+			}
+			else {
+				dp[i][j] = min(dp[i - 1][j - 1], min(dp[i - 1][j], dp[i][j - 1])) + 1;
+			}
+		}
+	}
+	return dp[n][m];
+}
+
+vector<string> fuzzy_search(const vector<string>& corpus, const string& query, int threshold) {
+	vector<string> results;
+	for (const auto& word : corpus) {
+		int dist = edit_distance(word, query);
+		if (dist <= threshold) {
+			results.push_back(word);
+		}
+	}
+	return results;
+}
+
+int main()
+{
+	vector<string> corpus = { "world","hello", "foo", "bar", "fizz", "buzz" };
+	
+	string query = "lo";
+	int threshold = 0;
+	vector<string> results = fuzzy_search(corpus, query, threshold);
+	for (const auto& word : results) {
+		cout << word << " " << endl;
+	}
+	return 0;
+}
+
+#else
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+int min3(int a, int b, int c) {
+	return min(min(a, b), c);
+}
+
+int fuzzy_match(const string& s1, const string& s2, int threshold) {
+	const int n = s1.size(), m = s2.size();
+	vector<int> dp(m + 1);
+	for (int j = 0; j <= m; ++j)
+		dp[j] = j;
+
+	int lastDiag = 0;
+	for (int i = 1; i <= n; ++i) {
+		lastDiag = i - 1;
+		dp[0] = i;
+		for (int j = 1; j <= m; ++j) {
+			const int nextDiag = dp[j];
+			if (s1[i - 1] == s2[j - 1])
+				dp[j] = lastDiag;
+			else
+				dp[j] = 1 + min3(lastDiag, dp[j], dp[j - 1]);
+			lastDiag = nextDiag;
+		}
+	}
+
+	return dp[m] <= threshold ? dp[m] : -1;
+}
+
+vector<string> fuzzy_search(const vector<string>& corpus, const string& query, int threshold) {
+	vector<string> results;
+	for (const auto& word : corpus) {
+		if (fuzzy_match(word, query, threshold) != -1) {
+			results.push_back(word);
+		}
+	}
+	return results;
+}
+
+int main() {
+	/*vector<string> corpus = { "hello", "world", "foo", "bar", "buzz", "fizz" };
+	string query = "he";*/
+	//string query = "fol";
+	/*vector<string> corpus = { "999999", "99998", "77775", "665", "5543", "21", "1", "ab" };
+	string query = "5";*/
+	vector<string> corpus = { "一二", "一一二二", "三四", "四五五", "五六七", "七八", "八九十", "十一" };
+	string query = "五六";
+
+	int threshold = 2;
+	vector<string> results = fuzzy_search(corpus, query, threshold);
+	for (const auto& word : results) {
+		cout << word << '\n';
+	}
+
+	system("pause");
+	return 0;
+}
+#endif
