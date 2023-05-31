@@ -1,0 +1,8 @@
+想要拷贝元素：for(auto x:range)
+想要修改元素: for(auto &&x:range)
+想要只读元素：for(const auto& x:range)
+
+vector<string> corpus = { "hello","world", "foo", "bar", "fizz", "buzz" };
+
+fuzzy_search(corpus, query, threshold);  //const vector<string>& corpus
+for (const auto& word : corpus)
