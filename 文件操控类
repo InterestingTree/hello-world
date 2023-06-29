@@ -1,0 +1,79 @@
+#include "stdafx.h"
+
+
+BOOL CMFCApplication1App::DeleteDirectory(CString DirName);
+void CMFCApplication1App::DeleteDownLoadFileInfo(CString strFilePath, CString strType);
+
+main()
+{
+  CString TempAdd_All = targetFilePath + _T("\\Creader_Series_Update");// +_T("\\Creader_Series_Update.exe");
+  if (PathIsDirectory(TempAdd_All))
+  {
+    DeleteDirectory(TempAdd_All);//有文件：安装程序触发，删除旧程序
+  }
+}
+
+void CMFCApplication1App::DeleteDownLoadFileInfo(CString strFilePath, CString strType)
+{
+	CString strFileName = _T(""), SourcePath = _T("");
+	CFileFind find;
+	//BOOL ret = find.FindFile(strFilePath + _T("\\*.ZIP"));
+	BOOL ret = find.FindFile(strFilePath + _T("\\") + strType);
+	while (ret)
+	{
+		ret = find.FindNextFile();
+		if (find.IsDots() || find.IsDirectory()) continue;
+
+		strFileName = find.GetFileName();
+		SourcePath = strFilePath + _T("\\") + strFileName;
+		//SetFileAttributesInfo(SourcePath);
+		//-------------------将只读文件的只读属性去掉-----------------------
+		CFileStatus rStatus;
+		CFile::GetStatus(SourcePath, rStatus);//获得文件的属性设置
+		rStatus.m_attribute = rStatus.m_attribute & 0x3E;   //如果文件为只读的，将只读属性去掉
+															//--------------------------------------------
+		CFile::SetStatus(SourcePath, rStatus);//更改文件的属性设置
+
+
+		DeleteFile((LPCTSTR)SourcePath);
+	}
+	find.Close();
+}
+
+BOOL CMFCApplication1App::DeleteDirectory(CString DirName)
+{
+	CFileFind tempFind;
+	CString tempFileFind = _T("");
+	tempFileFind.Format(_T("%s\\*.*"), DirName);
+	BOOL IsFinded = tempFind.FindFile(tempFileFind);
+	while (IsFinded)
+	{
+		IsFinded = tempFind.FindNextFile();
+		if (!tempFind.IsDots())
+		{
+			CString foundFileName = _T("");
+			foundFileName = tempFind.GetFileName();
+
+			if (tempFind.IsDirectory())
+			{
+				CString tempDir = _T("");
+				tempDir.Format(_T("%s\\%s"), DirName, foundFileName);
+				DeleteDirectory(tempDir);
+			}
+			else
+			{
+				//CString tempFileName = _T("");
+				//tempFileName.Format(_T("%s\\%s"),DirName,foundFileName);
+				DeleteDownLoadFileInfo(DirName, _T("*.*"));
+			}
+		}
+	}
+	tempFind.Close();
+	DirName = DirName + _T("\\");
+	if (!RemoveDirectory(DirName))
+	{
+		//    AfxMessageBox(_T("删除目录失败！"));
+		return FALSE;
+	}
+	return TRUE;
+}
