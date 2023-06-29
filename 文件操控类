@@ -1,5 +1,9 @@
 #include "stdafx.h"
 
+//删文件，删除（文件非空）目录
+/*CFile TempFile;
+TempFile.Remove(TempAdd_All);*/
+//	DeleteFile(TempAdd_All);//MFC框架中可直接调用此函数
 
 BOOL CMFCApplication1App::DeleteDirectory(CString DirName);
 void CMFCApplication1App::DeleteDownLoadFileInfo(CString strFilePath, CString strType);
